@@ -448,7 +448,6 @@ String _getLibraryUrl(String platform, String mode) {
 // El fichero de sumas vive junto a filament.version, en la raíz del
 // paquete (misma resolución de ruta que _getFilamentVersion, dos
 // directorios por encima de este script: hook/build.dart -> hook/ -> raíz).
-String _packageRootPath() => path.dirname(path.dirname(Platform.script.toFilePath(windows: Platform.isWindows)));
 
 //
 // Download precompiled Filament libraries for the target platform from a
@@ -560,7 +559,13 @@ Future<Directory> getLibDir(
     // filament.sha256 — un zip sin entrada, o con el hash cambiado, no se
     // acepta. Si falla, se borra el zip para que el siguiente build no lo
     // dé por bueno.
-    final sha256File = File(path.join(_packageRootPath(), "filament.sha256"));
+    // La raíz del paquete es la que trae la config del hook (packageRoot), NO
+    // la del script en ejecución: el runner de hooks compila este fichero a
+    // un hook.dill dentro del .dart_tool de la app que consume el paquete, así
+    // que derivarla de Platform.script apunta a un sitio donde no hay nada.
+    final sha256File = File(
+      path.join(packageRoot.toFilePath(windows: Platform.isWindows), "filament.sha256"),
+    );
     if (!sha256File.existsSync()) {
       libraryZip.deleteSync();
       throw StateError(
