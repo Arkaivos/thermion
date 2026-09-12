@@ -13,8 +13,11 @@
 # fichero).
 #
 # Los cuatro artefactos de iOS (ios-release, ios-debug,
-# ios-simulator-release, ios-simulator-debug) todavía no están aquí: el
 # workflow que los fabrica seguía corriendo cuando se escribió este
 # fichero. Añádelos en cuanto la release los publique — no inventar hashes.
 23abbf792e1defdae85084c655fd2747e705e2b1bbab30f9ae4ad59598482bc0  filament-v1.69.1-android-release.zip
 6a465f6a47cca71deeec3f8b3737a9f4f07a41f0fb81d85087747dcb1828cfd1  filament-v1.69.1-windows-release.zip
+dd4c8ce7f05259404c1d89bfda2e6ddc4f6a7a6f9e3d831f03453532131ba120  filament-v1.69.1-ios-release.zip
+4b17a30a515f695e3f8fc84bd22499ef9a9e59b6890e12c178c03f35d15c1a43  filament-v1.69.1-ios-debug.zip
+a00c8af34afef2b37d878942b1af2c6de4980c8fbaf5bdfe63752517d125160b  filament-v1.69.1-ios-simulator-release.zip
+4cca4fb70d7e286dde98259621f9cfdb735e400464644cc4adc843d78f52739f  filament-v1.69.1-ios-simulator-debug.zip
