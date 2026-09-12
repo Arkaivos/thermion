@@ -442,7 +442,7 @@ String _FILAMENT_VERSION = _getFilamentVersion();
 // que ya fabrica el workflow del autor (filament-<versión>-<plataforma>-
 // <modo>.zip), así que los zips se publican tal cual.
 String _getLibraryUrl(String platform, String mode) {
-  return "https://github.com/Arkaivos/nuviri-garden/releases/download/filament-${_FILAMENT_VERSION}/filament-${_FILAMENT_VERSION}-${platform}-${mode}.zip";
+  return "https://github.com/Arkaivos/thermion/releases/download/filament-${_FILAMENT_VERSION}/filament-${_FILAMENT_VERSION}-${platform}-${mode}.zip";
 }
 
 // El fichero de sumas vive junto a filament.version, en la raíz del
@@ -604,7 +604,7 @@ Future<Directory> getLibDir(
 // corrige igual para no dejar nada en este fichero apuntando a un host
 // que no responde. Ya no es una constante porque depende de
 // _FILAMENT_VERSION, que se resuelve en tiempo de ejecución.
-String get _webR2BaseUrl => 'https://github.com/Arkaivos/nuviri-garden/releases/download/filament-${_FILAMENT_VERSION}';
+String get _webR2BaseUrl => 'https://github.com/Arkaivos/thermion/releases/download/filament-${_FILAMENT_VERSION}';
 
 Future<void> _downloadWebArtifacts(BuildInput input, Logger logger) async {
   final packageRoot = input.packageRoot.toFilePath(windows: Platform.isWindows);
