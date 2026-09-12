@@ -137,7 +137,7 @@ jobs:
 
   build-ios:
     name: Build iOS
-    runs-on: macos-14
+    runs-on: macos-15  # nuviri: macos-14 está deprecated en GitHub y se queda en cola horas
     needs: setup
     if: contains(needs.setup.outputs.matrix, 'ios')
     env:
