@@ -7,6 +7,7 @@ import 'package:native_toolchain_c/native_toolchain_c.dart';
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
 import '../lib/src/logging/log.dart';
+import '../lib/src/download/filament_sha256.dart';
 
 void main(List<String> args) async {
   await build(args, (BuildInput input, BuildOutputBuilder output) async {
@@ -434,12 +435,25 @@ String _getFilamentVersion() {
 }
 
 String _FILAMENT_VERSION = _getFilamentVersion();
+
+// El bucket de R2 del autor original no está bajo nuestro control y lleva
+// caído desde todas las redes que hemos probado. La fuente pasa a ser una
+// release de GitHub bajo control del dueño, con el mismo nombre de fichero
+// que ya fabrica el workflow del autor (filament-<versión>-<plataforma>-
+// <modo>.zip), así que los zips se publican tal cual.
 String _getLibraryUrl(String platform, String mode) {
-  return "https://pub-c8b6266320924116aaddce03b5313c0a.r2.dev/filament-${_FILAMENT_VERSION}-${platform}-${mode}.zip";
+  return "https://github.com/Arkaivos/nuviri-garden/releases/download/filament-${_FILAMENT_VERSION}/filament-${_FILAMENT_VERSION}-${platform}-${mode}.zip";
 }
 
+// El fichero de sumas vive junto a filament.version, en la raíz del
+// paquete (misma resolución de ruta que _getFilamentVersion, dos
+// directorios por encima de este script: hook/build.dart -> hook/ -> raíz).
+String _packageRootPath() => path.dirname(path.dirname(Platform.script.toFilePath(windows: Platform.isWindows)));
+
 //
-// Download precompiled Filament libraries for the target platform from Cloudflare.
+// Download precompiled Filament libraries for the target platform from a
+// GitHub release under the project's own control (see the comment on
+// _getLibraryUrl above for why this is no longer Cloudflare).
 //
 Future<Directory> getLibDir(
   Uri packageRoot,
@@ -541,6 +555,30 @@ Future<Directory> getLibDir(
       "Downloaded library zip hash: $downloadedHash, size: ${downloadedBytes.length} bytes (${libraryZip.path})",
     );
 
+    // El md5 de arriba solo se queda en el log: no hay ninguna decisión
+    // detrás. La que manda es esta verificación SHA-256 contra
+    // filament.sha256 — un zip sin entrada, o con el hash cambiado, no se
+    // acepta. Si falla, se borra el zip para que el siguiente build no lo
+    // dé por bueno.
+    final sha256File = File(path.join(_packageRootPath(), "filament.sha256"));
+    if (!sha256File.existsSync()) {
+      libraryZip.deleteSync();
+      throw StateError(
+        "No se encontró ${sha256File.path}; se rechaza la descarga de $filename por no poder verificarla.",
+      );
+    }
+    try {
+      final digest = verifyFilamentZipSha256(
+        zipBytes: downloadedBytes,
+        zipFilename: filename,
+        sha256FileContents: sha256File.readAsStringSync(),
+      );
+      logger.info("Verified SHA-256 for $filename: $digest");
+    } catch (_) {
+      libraryZip.deleteSync();
+      rethrow;
+    }
+
     final archive = ZipDecoder().decodeBytes(downloadedBytes);
 
     for (final file in archive) {
@@ -560,7 +598,13 @@ Future<Directory> getLibDir(
   return libDir;
 }
 
-const _webR2BaseUrl = 'https://pub-c8b6266320924116aaddce03b5313c0a.r2.dev';
+// Mismo motivo que _getLibraryUrl más arriba: el bucket de R2 del autor
+// está caído para todo el mundo. La app de Nuviri solo compila para
+// iOS/Android y nunca pasa por esta ruta (es la del build web), pero se
+// corrige igual para no dejar nada en este fichero apuntando a un host
+// que no responde. Ya no es una constante porque depende de
+// _FILAMENT_VERSION, que se resuelve en tiempo de ejecución.
+String get _webR2BaseUrl => 'https://github.com/Arkaivos/nuviri-garden/releases/download/filament-${_FILAMENT_VERSION}';
 
 Future<void> _downloadWebArtifacts(BuildInput input, Logger logger) async {
   final packageRoot = input.packageRoot.toFilePath(windows: Platform.isWindows);

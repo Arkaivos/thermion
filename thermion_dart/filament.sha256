@@ -1,0 +1,20 @@
+# SHA-256 de los zips de Filament precompilado que hook/build.dart descarga
+# desde la release de GitHub del proyecto (ver _getLibraryUrl en
+# hook/build.dart): el bucket de R2 del autor original está caído, así que
+# el hook ya no se fía de lo que le sirva el servidor — verifica cada zip
+# descargado contra la entrada de este fichero y falla si no hay entrada o
+# si el hash no coincide.
+#
+# Formato: una línea por artefacto, "<sha256>  <nombre-del-zip>" (el mismo
+# que produce `sha256sum`). Para regenerarlo tras publicar una release
+# nueva, sobre los zips ya subidos:
+#   sha256sum filament-*.zip > filament.sha256
+# (y luego restaurar esta cabecera, porque sha256sum sobrescribe todo el
+# fichero).
+#
+# Los cuatro artefactos de iOS (ios-release, ios-debug,
+# ios-simulator-release, ios-simulator-debug) todavía no están aquí: el
+# workflow que los fabrica seguía corriendo cuando se escribió este
+# fichero. Añádelos en cuanto la release los publique — no inventar hashes.
+23abbf792e1defdae85084c655fd2747e705e2b1bbab30f9ae4ad59598482bc0  filament-v1.69.1-android-release.zip
+6a465f6a47cca71deeec3f8b3737a9f4f07a41f0fb81d85087747dcb1828cfd1  filament-v1.69.1-windows-release.zip
